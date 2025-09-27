@@ -1,5 +1,6 @@
 *** Settings ***
 Library    SeleniumLibrary
+Library    FakerLibrary
 
 *** Variables ***
 ${URL}           https://parabank.parasoft.com
@@ -11,8 +12,8 @@ ${Address}       Castelão
 ${City}          Fortaleza    
 ${State}         Ceará
 ${ZipCode}       60520560000
+${Phone}         85988997766
 ${SNN}           2342424242
-${UserName}      Marcos Antonio2
 ${Confirm}       1234@test
 
 
@@ -28,6 +29,7 @@ Abrir o site ParaBank
 Validar titulo da pagina
     Title Should Be    ParaBank | Welcome | Online Banking
 Preencher formulário com dados válidos.
+    ${username}=     FakerLibrary.User Name
     Click Element    css=a[href="register.htm"]
     Input Text    css=input[id="customer.firstName"]          ${FirstName}  
     Input Text    css=input[id="customer.lastName"]           ${LastName}
@@ -35,22 +37,19 @@ Preencher formulário com dados válidos.
     Input Text    css=input[id="customer.address.city"]       ${City}
     Input Text    css=input[id="customer.address.state"]      ${State}
     Input Text    css=input[id="customer.address.zipCode"]    ${ZipCode}
+    Input Text    css=input[id="customer.phoneNumber"]        ${Phone}
     Input Text    css=input[id="customer.ssn"]                ${SNN}
-    Input Text    css=input[id="customer.username"]           ${UserName}
+    Input Text    css=input[id="customer.username"]           ${username}
     Input Text    css=input[id="customer.password"]           ${PassWord}
     Input Text    css=input[id="repeatedPassword"]            ${Confirm}
     
 Enviar formulário.
     Wait Until Element Is Visible    css=input[value="Register"]    10s
     Click Element    css=input[value="Register"]
-    Page Should Contain    Welcome Marcos Antonio2
+    Page Should Contain    Welcome
+
 Resultado Esperado: Usuário cadastrado com sucesso.
     Page Should Contain    Your account was created successfully. You are now logged in.
-
-
-
-
-
 Abrir o site ParaBank para cadastro existente
     Go To    url=${URL} 
 
