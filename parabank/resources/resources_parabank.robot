@@ -15,6 +15,7 @@ ${ZipCode}       60520560000
 ${Phone}         85988997766
 ${SNN}           2342424242
 ${Confirm}       1234@test
+${UserName}      Marcos
 
 
 
