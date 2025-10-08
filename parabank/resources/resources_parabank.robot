@@ -17,8 +17,6 @@ ${SNN}           2342424242
 ${Confirm}       1234@test
 ${UserName}      Marcos
 
-
-
 *** Keywords ***
 Abrir navegador
     Open Browser    browser=chrome
@@ -48,12 +46,10 @@ Enviar formulário.
     Wait Until Element Is Visible    css=input[value="Register"]    10s
     Click Element    css=input[value="Register"]
     Page Should Contain    Welcome
-
 Resultado Esperado: Usuário cadastrado com sucesso.
     Page Should Contain    Your account was created successfully. You are now logged in.
 Abrir o site ParaBank para cadastro existente
     Go To    url=${URL} 
-
 Testa o cadastro de usuário existente
     Click Element    css=a[href="register.htm"]
     Input Text    css=input[id="customer.firstName"]          ${FirstName}  
@@ -72,10 +68,24 @@ Clicar em 'Register'
 Cadastro existente
     Page Should Contain    This username already exists.    10s
     
-
-    
-
-
-    
-   
-
+Abrir o site ParaBank para transferencia
+    Go To    url=${URL}
+inserir usuario
+    Input Text    xpath=//input[@name='username']    ${username}
+inserir senha
+    Input Text    css=input[type="password"]    ${PassWord}
+clicar em login 
+    Click Element    css=input[type="submit"]
+Clicar em Transfer Funds 
+    Click Element    xpath=//a[normalize-space()='Transfer Funds']
+    Input Text    css=input[id="amount"]    5000
+From account
+    Wait Until Element Contains    css=select[id="fromAccountId"]    22002    10s
+    List Selection Should Be    css=select[id="fromAccountId"]    22002
+    Sleep    1s
+to account
+    Wait Until Element Contains    css=select[id="toAccountId"]    22002    10s
+    List Selection Should Be    css=select[id="toAccountId"]    22002
+    Sleep    1s
+Transferir
+    Click Element    css=input[value="Transfer"]
