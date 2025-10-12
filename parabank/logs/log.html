@@ -5,7 +5,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta content="Robot Framework 7.0.1 (Python 3.13.3 on win32)" name="Generator">
+<meta content="Robot Framework 7.3.2 (Python 3.13.7 on win32)" name="Generator">
 <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKcAAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAAqAAAAAAAAAAAAAAAAAAAALIAAAD/AAAA4AAAANwAAADcAAAA3AAAANwAAADcAAAA3AAAANwAAADcAAAA4AAAAP8AAACxAAAAAAAAAKYAAAD/AAAAuwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC/AAAA/wAAAKkAAAD6AAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN8AAAD/AAAA+gAAAMMAAAAAAAAAAgAAAGsAAABrAAAAawAAAGsAAABrAAAAawAAAGsAAABrAAAADAAAAAAAAADaAAAA/wAAAPoAAADDAAAAAAAAAIsAAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAANEAAAAAAAAA2gAAAP8AAAD6AAAAwwAAAAAAAAAAAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAFAAAAAAAAANoAAAD/AAAA+gAAAMMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADaAAAA/wAAAPoAAADDAAAAAAAAADwAAAB8AAAAAAAAAGAAAABcAAAAAAAAAH8AAABKAAAAAAAAAAAAAAAAAAAA2gAAAP8AAAD6AAAAwwAAAAAAAADCAAAA/wAAACkAAADqAAAA4QAAAAAAAAD7AAAA/wAAALAAAAAGAAAAAAAAANoAAAD/AAAA+gAAAMMAAAAAAAAAIwAAAP4AAAD/AAAA/wAAAGAAAAAAAAAAAAAAAMkAAAD/AAAAigAAAAAAAADaAAAA/wAAAPoAAADDAAAAAAAAAAAAAAAIAAAAcAAAABkAAAAAAAAAAAAAAAAAAAAAAAAAEgAAAAAAAAAAAAAA2gAAAP8AAAD7AAAAywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN4AAAD/AAAAqwAAAP8AAACvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALIAAAD/AAAAsgAAAAAAAAC5AAAA/wAAAMoAAADAAAAAwAAAAMAAAADAAAAAwAAAAMAAAADAAAAAwAAAAMkAAAD/AAAAvAAAAAAAAAAAAAAAAAAAAKwAAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAArQAAAAAAAAAAwAMAAIABAAAf+AAAP/wAAD/8AAAgBAAAP/wAAD/8AAA//AAAJIwAADHEAAA//AAAP/wAAB/4AACAAQAAwAMAAA==">
 <style media="all">
 :root {
@@ -724,10 +724,13 @@ function toggleSuite(suiteId) {
     toggleElement(suiteId, ['keyword', 'suite', 'test']);
 }
 function toggleTest(testId) {
-    toggleElement(testId, ['keyword']);
     var test = window.testdata.findLoaded(testId);
-    if (test.status == "FAIL" || test.status == "SKIP")
+    var autoExpand = test.status == "FAIL" || test.status == "SKIP";
+    var closed = $('#' + testId).children('.element-header').hasClass('closed');
+    if (autoExpand && closed)
         expandFailed(test);
+    else
+        toggleElement(testId, ['keyword']);
 }
 function toggleKeyword(kwId) {
     toggleElement(kwId, ['keyword']);
@@ -1252,58 +1255,48 @@ window.stats = (function () {
             });
     }
     function calculatePercents(total, passed, failed, skipped) {
-        if (total == 0) {
+        if (total == 0)
             return [0.0, 0.0, 0.0];
-        }
         var pass = 100.0 * passed / total;
         var skip = 100.0 * skipped / total;
         var fail = 100.0 * failed / total;
         if (pass > 0 && pass < 0.1)
-            pass = 0.1
+            pass = 0.1;
         if (fail > 0 && fail < 0.1)
-            fail = 0.1
+            fail = 0.1;
         if (skip > 0 && skip < 0.1)
-            skip = 0.1
+            skip = 0.1;
         if (pass > 99.95 && pass < 100)
-            pass = 99.9
+            pass = 99.9;
         if (fail > 99.95 && fail < 100)
-            fail = 99.9
+            fail = 99.9;
         if (skip > 99.95 && skip < 100)
-            skip = 99.9
-        return [Math.round(pass*10)/10, Math.round(skip*10)/10, Math.round(fail*10)/10];
+            skip = 99.9;
+        return [round1(pass), round1(skip), round1(fail)];
     }
     function calculateWidths(num1, num2, num3) {
         if (num1 + num2 + num3 === 0)
             return [0.0, 0.0, 0.0];
         // Make small percentages better visible
         if (num1 > 0 && num1 < 1)
-            num1 = 1
+            num1 = 1.0;
         if (num2 > 0 && num2 < 1)
-            num2 = 1
+            num2 = 1.0;
         if (num3 > 0 && num3 < 1)
-            num3 = 1
+            num3 = 1.0;
         // Handle situation where some are rounded up
         while (num1 + num2 + num3 > 100) {
-            if (num1 > num2 && num1 > num3)
-                num1 -= 0.1;
-            else if (num2 > num1 && num2 > num3)
-                num2 -= 0.1;
-            else if (num3 > num1 && num3 > num2)
-                num3 -= 0.1;
-            else if (num1 > num3 && num1 == num2) {
-                num1 -= 0.1;
-                num2 -= 0.1;
-            }
-            else if (num1 > num2 && num1 == num3) {
-                num1 -= 0.1;
-                num3 -= 0.1;
-            }
-            else if (num2 > num1 && num2 == num3) {
-                num2 -= 0.1;
-                num3 -= 0.1;
-            }
+            if (num1 >= num2 && num1 >= num3)
+                num1 = round1(num1 - 0.1);
+            else if (num2 >= num1 && num2 >= num3)
+                num2 = round1(num2 - 0.1);
+            else
+                num3 = round1(num3 - 0.1);
         }
-        return [Math.ceil(num1*10)/10, Math.ceil(num2*10)/10, Math.ceil(num3*10)/10];
+        return [num1, num2, num3];
+    }
+    function round1(num) {
+        return Math.round(num*10) / 10;
     }
     return {
         Statistics: Statistics
@@ -1522,7 +1515,7 @@ window.testdata = function () {
     var STATUSES = ['FAIL', 'PASS', 'SKIP', 'NOT RUN'];
     var KEYWORD_TYPES = ['KEYWORD', 'SETUP', 'TEARDOWN', 'FOR', 'ITERATION', 'IF',
                          'ELSE IF', 'ELSE', 'RETURN', 'VAR', 'TRY', 'EXCEPT', 'FINALLY',
-                         'WHILE', 'CONTINUE', 'BREAK', 'ERROR'];
+                         'WHILE', 'GROUP', 'CONTINUE', 'BREAK', 'ERROR'];
     function addElement(elem) {
         if (!elem.id)
             elem.id = uniqueId();
@@ -2081,25 +2074,25 @@ storage = function () {
 window.output = {};
 </script>
 <script type="text/javascript">
-window.output["suite"] = [1,2,3,0,[],[1,0,23747],[[4,5,6,0,[],[1,17,9863],[],[[7,0,8,[9],[1,373,9506],[[1,10,11,0,0,0,0,0,[1,374,1325],[[0,12,13,0,14,15,0,0,[1,374,1292],[[374,2,16]]],[0,17,13,0,18,0,0,0,[1,1666,32],[]]]],[0,19,11,0,0,0,0,0,[1,1702,1821],[[0,20,13,0,21,22,0,0,[1,1702,1820],[[1702,2,23]]]]],[0,24,11,0,0,0,0,0,[1,3524,96],[[0,25,13,0,26,27,0,0,[1,3525,95],[[3526,2,28]]]]],[0,29,11,0,0,0,0,0,[1,3621,66],[[0,25,13,0,26,30,0,0,[1,3621,66],[[3621,2,31]]]]],[0,32,11,0,0,0,0,0,[1,3688,994],[[0,33,13,0,34,35,0,0,[1,3688,994],[[3688,2,36]]]]],[0,37,11,0,0,0,0,0,[1,4682,405],[[0,33,13,0,34,38,0,0,[1,4682,340],[[4683,2,39]]],[0,25,13,0,26,40,0,0,[1,5023,64],[[5023,2,41]]]]],[0,42,11,0,0,0,0,0,[1,5087,1520],[[0,43,13,0,44,45,0,0,[1,5088,464],[]],[0,46,13,0,47,48,0,0,[1,5552,54],[[5552,2,49],[5562,2,50]]],[0,51,52,0,53,54,0,0,[1,5606,1001],[[6607,2,55]]]]],[0,56,11,0,0,0,0,0,[1,6608,1072],[[0,43,13,0,44,57,0,0,[1,6608,21],[]],[0,46,13,0,47,58,0,0,[1,6629,48],[[6629,2,59],[6639,2,60]]],[0,51,52,0,53,54,0,0,[1,6677,1002],[[7679,2,55]]]]],[0,61,11,0,0,0,0,0,[1,7680,62],[[0,33,13,0,34,62,0,0,[1,7680,62],[[7680,2,63]]]]],[2,64,11,0,0,0,0,0,[1,7743,2136],[[0,65,13,0,66,0,0,0,[1,7743,2136],[]]]]]]],[],[1,1,0,0]],[67,68,69,0,[],[1,9881,7579],[],[[70,0,71,[72],[1,9884,7576],[[1,10,11,0,0,0,0,0,[1,9884,1325],[[0,12,13,0,14,15,0,0,[1,9884,1284],[[9884,2,16]]],[0,17,13,0,18,0,0,0,[1,11168,40],[]]]],[0,73,11,0,0,0,0,0,[1,11209,1346],[[0,20,13,0,21,22,0,0,[1,11209,1346],[[11210,2,23]]]]],[0,74,11,0,0,0,0,0,[1,12558,17],[[0,75,13,0,76,77,0,0,[1,12558,17],[[12575,2,78]]]]],[0,79,11,0,0,0,0,0,[1,12575,2276],[[0,80,81,0,0,0,82,0,[1,12576,0],[[12576,2,83]]],[0,33,13,0,34,84,0,0,[1,12576,332],[[12576,2,85]]],[0,25,13,0,26,86,0,0,[1,12909,265],[[12909,2,87]]],[0,25,13,0,26,88,0,0,[1,13174,72],[[13174,2,89]]],[0,25,13,0,26,90,0,0,[1,13246,119],[[13246,2,91]]],[0,25,13,0,26,92,0,0,[1,13365,247],[[13365,2,93]]],[0,25,13,0,26,94,0,0,[1,13612,254],[[13612,2,95]]],[0,25,13,0,26,96,0,0,[1,13866,214],[[13867,2,97]]],[0,25,13,0,26,98,0,0,[1,14081,270],[[14081,2,99]]],[0,25,13,0,26,100,0,0,[1,14350,178],[[14351,2,101]]],[0,25,13,0,26,102,0,0,[1,14529,54],[[14529,2,103]]],[0,25,13,0,26,104,0,0,[1,14584,61],[[14584,2,105]]],[0,25,13,0,26,106,0,0,[1,14645,207],[[14645,2,107]]]]],[0,108,11,0,0,0,0,0,[1,14852,452],[[0,109,13,0,110,111,0,0,[1,14852,27],[]],[0,33,13,0,34,112,0,0,[1,14879,351],[[14879,2,113]]],[0,114,13,0,115,116,0,0,[1,15231,73],[[15304,2,117]]]]],[0,118,11,0,0,0,0,0,[1,15305,14],[[0,114,13,0,115,119,0,0,[1,15305,14],[[15319,2,120]]]]],[2,64,11,0,0,0,0,0,[1,15320,2139],[[0,65,13,0,66,0,0,0,[1,15320,2139],[]]]]]]],[],[1,1,0,0]],[121,122,123,0,[],[1,17462,6284],[],[[124,0,125,[126],[1,17465,6281],[[1,10,11,0,0,0,0,0,[1,17465,1366],[[0,12,13,0,14,15,0,0,[1,17466,1336],[[17466,2,16]]],[0,17,13,0,18,0,0,0,[1,18802,29],[]]]],[0,127,11,0,0,0,0,0,[1,18832,1365],[[0,20,13,0,21,22,0,0,[1,18832,1365],[[18832,2,23]]]]],[0,128,11,0,0,0,0,0,[1,20197,1068],[[0,33,13,0,34,84,0,0,[1,20198,341],[[20198,2,85]]],[0,25,13,0,26,86,0,0,[1,20539,97],[[20540,2,87]]],[0,25,13,0,26,88,0,0,[1,20636,60],[[20636,2,89]]],[0,25,13,0,26,90,0,0,[1,20697,76],[[20697,2,91]]],[0,25,13,0,26,92,0,0,[1,20772,81],[[20773,2,93]]],[0,25,13,0,26,94,0,0,[1,20854,66],[[20854,2,95]]],[0,25,13,0,26,96,0,0,[1,20920,91],[[20920,2,97]]],[0,25,13,0,26,100,0,0,[1,21011,64],[[21012,2,101]]],[0,25,13,0,26,129,0,0,[1,21076,55],[[21076,2,130]]],[0,25,13,0,26,104,0,0,[1,21131,76],[[21131,2,105]]],[0,25,13,0,26,106,0,0,[1,21207,58],[[21208,2,107]]]]],[0,131,11,0,0,0,0,0,[1,21265,338],[[0,109,13,0,110,111,0,0,[1,21266,10],[]],[0,33,13,0,34,112,0,0,[1,21276,327],[[21276,2,113]]]]],[0,132,11,0,0,0,0,0,[1,21607,41],[[0,114,13,0,115,133,0,0,[1,21608,41],[[21648,2,134]]]]],[2,64,11,0,0,0,0,0,[1,21649,2096],[[0,65,13,0,66,0,0,0,[1,21649,2096],[]]]]]]],[],[1,1,0,0]]],[],[],[3,3,0,0]];
+window.output["suite"] = [1,2,3,0,[],[1,0,50203],[[4,5,6,0,[],[1,121,18771],[],[[7,0,8,[9],[1,2263,16627],[[1,10,11,0,0,0,0,0,[1,2265,4383],[[0,12,13,0,14,15,0,0,[1,2268,3753],[[2269,2,16]]],[0,17,13,0,18,0,0,0,[1,6022,626],[]]]],[0,19,11,0,0,0,0,0,[1,6667,3481],[[0,20,13,0,21,22,0,0,[1,6668,3476],[[6669,2,23]]]]],[0,24,11,0,0,0,0,0,[1,10196,321],[[0,25,13,0,26,27,0,0,[1,10197,320],[[10200,2,28]]]]],[0,29,11,0,0,0,0,0,[1,10523,317],[[0,25,13,0,26,30,0,0,[1,10524,314],[[10525,2,31]]]]],[0,32,11,0,0,0,0,0,[1,10843,1251],[[0,33,13,0,34,35,0,0,[1,10845,220],[[10846,2,36]]],[0,37,38,0,39,40,0,0,[1,11066,1028],[[12093,2,41]]]]],[0,42,11,0,0,0,0,0,[1,12195,1280],[[0,33,13,0,34,43,0,0,[1,12197,959],[[12198,2,44]]],[0,25,13,0,26,45,0,0,[1,13157,318],[[13158,2,46]]]]],[0,47,11,0,0,0,0,0,[1,13477,1198],[[0,48,13,0,49,50,0,0,[1,13479,81],[]],[0,51,13,0,52,53,0,0,[1,13560,113],[]],[0,37,38,0,39,40,0,0,[1,13674,1001],[[14674,2,41]]]]],[0,54,11,0,0,0,0,0,[1,14676,1156],[[0,48,13,0,49,55,0,0,[1,14677,52],[]],[0,51,13,0,52,56,0,0,[1,14730,101],[]],[0,37,38,0,39,40,0,0,[1,14831,1001],[[15832,2,41]]]]],[0,57,11,0,0,0,0,0,[1,15833,203],[[0,33,13,0,34,58,0,0,[1,15834,201],[[15835,2,59]]]]],[2,60,11,0,0,0,0,0,[1,16040,2849],[[0,61,13,0,62,0,0,0,[1,16042,2847],[]]]]]]],[],[1,1,0,0]],[63,64,65,0,[],[1,18968,16196],[],[[66,0,67,[68],[1,19021,16141],[[1,10,11,0,0,0,0,0,[1,19026,3943],[[0,12,13,0,14,15,0,0,[1,19027,3462],[[19027,2,16]]],[0,17,13,0,18,0,0,0,[1,22489,480],[]]]],[0,69,11,0,0,0,0,0,[1,22981,3702],[[0,20,13,0,21,22,0,0,[1,22983,2699],[[22984,2,23]]],[0,37,38,0,39,40,0,0,[1,25682,1001],[[26683,2,41]]]]],[0,70,11,0,0,0,0,0,[1,26685,16],[[0,71,13,0,72,73,0,0,[1,26686,15],[[26700,2,74]]]]],[0,75,11,0,0,0,0,0,[1,26702,4495],[[0,76,77,0,0,0,78,0,[1,26703,2],[[26705,2,79]]],[0,33,13,0,34,80,0,0,[1,26705,833],[[26706,2,81]]],[0,25,13,0,26,82,0,0,[1,27539,449],[[27540,2,83]]],[0,25,13,0,26,84,0,0,[1,27989,308],[[27989,2,85]]],[0,25,13,0,26,86,0,0,[1,28298,314],[[28299,2,87]]],[0,25,13,0,26,88,0,0,[1,28612,329],[[28613,2,89]]],[0,25,13,0,26,90,0,0,[1,28942,276],[[28943,2,91]]],[0,25,13,0,26,92,0,0,[1,29218,325],[[29220,2,93]]],[0,25,13,0,26,94,0,0,[1,29544,351],[[29545,2,95]]],[0,25,13,0,26,96,0,0,[1,29896,276],[[29897,2,97]]],[0,25,13,0,26,98,0,0,[1,30172,358],[[30173,2,99]]],[0,25,13,0,26,100,0,0,[1,30531,322],[[30532,2,101]]],[0,25,13,0,26,102,0,0,[1,30854,343],[[30855,2,103]]]]],[0,104,11,0,0,0,0,0,[1,31199,1062],[[0,48,13,0,49,105,0,0,[1,31200,77],[]],[0,33,13,0,34,106,0,0,[1,31278,774],[[31279,2,107]]],[0,108,13,0,109,110,0,0,[1,32053,208],[[32261,2,111]]]]],[0,112,11,0,0,0,0,0,[1,32262,53],[[0,108,13,0,109,113,0,0,[1,32263,52],[[32315,2,114]]]]],[2,60,11,0,0,0,0,0,[1,32317,2844],[[0,61,13,0,62,0,0,0,[1,32319,2842],[]]]]]]],[],[1,1,0,0]],[115,116,117,0,[],[1,35170,15024],[],[[118,0,119,[120],[1,35214,14978],[[1,10,11,0,0,0,0,0,[1,35218,3797],[[0,12,13,0,14,15,0,0,[1,35220,3235],[[35221,2,16]]],[0,17,13,0,18,0,0,0,[1,38456,559],[]]]],[0,121,11,0,0,0,0,0,[1,39022,2775],[[0,20,13,0,21,22,0,0,[1,39024,2773],[[39025,2,23]]]]],[0,122,11,0,0,0,0,0,[1,41818,4674],[[0,33,13,0,34,80,0,0,[1,41820,1087],[[41820,2,81]]],[0,25,13,0,26,82,0,0,[1,42907,365],[[42908,2,83]]],[0,25,13,0,26,84,0,0,[1,43273,327],[[43274,2,85]]],[0,25,13,0,26,86,0,0,[1,43601,421],[[43601,2,87]]],[0,25,13,0,26,88,0,0,[1,44022,362],[[44023,2,89]]],[0,25,13,0,26,90,0,0,[1,44384,257],[[44385,2,91]]],[0,25,13,0,26,92,0,0,[1,44641,307],[[44642,2,93]]],[0,25,13,0,26,94,0,0,[1,44949,356],[[44949,2,95]]],[0,25,13,0,26,96,0,0,[1,45306,315],[[45307,2,97]]],[0,25,13,0,26,123,0,0,[1,45622,275],[[45623,2,124]]],[0,25,13,0,26,100,0,0,[1,45899,313],[[45900,2,101]]],[0,25,13,0,26,102,0,0,[1,46212,279],[[46213,2,103]]]]],[0,125,11,0,0,0,0,0,[1,46494,922],[[0,48,13,0,49,105,0,0,[1,46495,69],[]],[0,33,13,0,34,106,0,0,[1,46564,851],[[46564,2,107]]]]],[0,126,11,0,0,0,0,0,[1,47420,67],[[0,108,13,0,109,127,0,0,[1,47421,66],[[47486,2,128]]]]],[2,60,11,0,0,0,0,0,[1,47489,2702],[[0,61,13,0,62,0,0,0,[1,47490,2701],[]]]]]]],[],[1,1,0,0]]],[],[],[3,3,0,0]];
 </script>
 <script type="text/javascript">
 window.output["strings"] = [];
 </script>
 <script type="text/javascript">
-window.output["strings"] = window.output["strings"].concat(["*","*Tests","*C:\\Parabank_web_teste\\parabank\\tests","*../tests","*Transfer","*C:\\Parabank_web_teste\\parabank\\tests\\transfer.robot","*../tests/transfer.robot","*transferencia","*<p>transferencia\x3c/p>","*via banco","*Abrir navegador","*resources_parabank","*Open Browser","*SeleniumLibrary","*<p>Opens a new browser instance to the optional <code>url\x3c/code>.\x3c/p>","*browser=chrome","*Opening browser 'chrome' to base url 'None'.","*Maximize Browser Window","*<p>Maximizes current browser window.\x3c/p>","*Abrir o site ParaBank para transferencia","*Go To","*<p>Navigates the current browser window to the provided <code>url\x3c/code>.\x3c/p>","*url=${URL}","*Opening url '<a href=\"https://parabank.parasoft.com\">https://parabank.parasoft.com\x3c/a>'","*inserir usuario","*Input Text","*<p>Types the given <code>text\x3c/code> into the text field identified by <code>locator\x3c/code>.\x3c/p>","*xpath=//input[@name='username']    ${username}","*Typing text 'Marcos' into text field 'xpath=//input[@name='username']'.","*inserir senha","*css=input[type=\"password\"]    ${PassWord}","*Typing text '1234@test' into text field 'css=input[type=\"password\"]'.","*clicar em login","*Click Element","*<p>Click the element identified by <code>locator\x3c/code>.\x3c/p>","*css=input[type=\"submit\"]","*Clicking element 'css=input[type=\"submit\"]'.","*Clicar em Transfer Funds","*xpath=//a[normalize-space()='Transfer Funds']","*Clicking element 'xpath=//a[normalize-space()='Transfer Funds']'.","*css=input[id=\"amount\"]    5000","*Typing text '5000' into text field 'css=input[id=\"amount\"]'.","*From account","*Wait Until Element Contains","*<p>Waits until the element <code>locator\x3c/code> contains <code>text\x3c/code>.\x3c/p>","*css=select[id=\"fromAccountId\"]    22002    10s","*List Selection Should Be","*<p>Verifies selection list <code>locator\x3c/code> has <code>expected\x3c/code> options selected.\x3c/p>","*css=select[id=\"fromAccountId\"]    22002","*Verifying list 'css=select[id=\"fromAccountId\"]' has option [ 22002 ] selected.","*Current page contains list 'css=select[id=\"fromAccountId\"]'.","*Sleep","*BuiltIn","*<p>Pauses the test executed for the given time.\x3c/p>","*1s","*Slept 1 second.","*to account","*css=select[id=\"toAccountId\"]    22002    10s","*css=select[id=\"toAccountId\"]    22002","*Verifying list 'css=select[id=\"toAccountId\"]' has option [ 22002 ] selected.","*Current page contains list 'css=select[id=\"toAccountId\"]'.","*Transferir","*css=input[value=\"Transfer\"]","*Clicking element 'css=input[value=\"Transfer\"]'.","*Fechar navegador","*Close Browser","*<p>Closes the current browser.\x3c/p>","*User Create Faker","*C:\\Parabank_web_teste\\parabank\\tests\\user_create_faker.robot","*../tests/user_create_faker.robot","*CT01 - Criar Usuário","*<p>Registrar usuario\x3c/p>","*registrar usuario","*Abrir o site ParaBank","*Validar titulo da pagina","*Title Should Be","*<p>Verifies that the current page title equals <code>title\x3c/code>.\x3c/p>","*ParaBank | Welcome | Online Banking","*Page title is 'ParaBank | Welcome | Online Banking'.","*Preencher formulário com dados válidos.","*User Name","*FakerLibrary","*${username}","*${username} = zwilliams","*css=a[href=\"register.htm\"]","*Clicking element 'css=a[href=\"register.htm\"]'.","*css=input[id=\"customer.firstName\"]    ${FirstName}","*Typing text 'Marcos' into text field 'css=input[id=\"customer.firstName\"]'.","*css=input[id=\"customer.lastName\"]    ${LastName}","*Typing text 'Antonio' into text field 'css=input[id=\"customer.lastName\"]'.","*css=input[id=\"customer.address.street\"]    ${Address}","*Typing text 'Castelão' into text field 'css=input[id=\"customer.address.street\"]'.","*css=input[id=\"customer.address.city\"]    ${City}","*Typing text 'Fortaleza' into text field 'css=input[id=\"customer.address.city\"]'.","*css=input[id=\"customer.address.state\"]    ${State}","*Typing text 'Ceará' into text field 'css=input[id=\"customer.address.state\"]'.","*css=input[id=\"customer.address.zipCode\"]    ${ZipCode}","*Typing text '60520560000' into text field 'css=input[id=\"customer.address.zipCode\"]'.","*css=input[id=\"customer.phoneNumber\"]    ${Phone}","*Typing text '85988997766' into text field 'css=input[id=\"customer.phoneNumber\"]'.","*css=input[id=\"customer.ssn\"]    ${SNN}","*Typing text '2342424242' into text field 'css=input[id=\"customer.ssn\"]'.","*css=input[id=\"customer.username\"]    ${username}","*Typing text 'zwilliams' into text field 'css=input[id=\"customer.username\"]'.","*css=input[id=\"customer.password\"]    ${PassWord}","*Typing text '1234@test' into text field 'css=input[id=\"customer.password\"]'.","*css=input[id=\"repeatedPassword\"]    ${Confirm}","*Typing text '1234@test' into text field 'css=input[id=\"repeatedPassword\"]'.","*Enviar formulário.","*Wait Until Element Is Visible","*<p>Waits until the element <code>locator\x3c/code> is visible.\x3c/p>","*css=input[value=\"Register\"]    10s","*css=input[value=\"Register\"]","*Clicking element 'css=input[value=\"Register\"]'.","*Page Should Contain","*<p>Verifies that current page contains <code>text\x3c/code>.\x3c/p>","*Welcome","*Current page contains text 'Welcome'.","*Resultado Esperado: Usuário cadastrado com sucesso.","*Your account was created successfully. You are now logged in.","*Current page contains text 'Your account was created successfully. You are now logged in.'.","*User Login Valido","*C:\\Parabank_web_teste\\parabank\\tests\\user_login_valido.robot","*../tests/user_login_valido.robot","*CT02 - Cadastro existente nao pode ser criado","*<p>Realizar teste com usuario existente, o usuario nao pode ser criado.\x3c/p>","*Usuario existente","*Abrir o site ParaBank para cadastro existente","*Testa o cadastro de usuário existente","*css=input[id=\"customer.username\"]    ${UserName}","*Typing text 'Marcos' into text field 'css=input[id=\"customer.username\"]'.","*Clicar em 'Register'","*Cadastro existente","*This username already exists.    10s","*Current page contains text 'This username already exists.'."]);
+window.output["strings"] = window.output["strings"].concat(["*","*Tests","*C:\\Parabank_web_teste\\parabank\\tests","*../tests","*Transfer","*C:\\Parabank_web_teste\\parabank\\tests\\transfer.robot","*../tests/transfer.robot","*transferencia","*<p>transferencia\x3c/p>","*via banco","*Abrir navegador","*resources_parabank","*Open Browser","*SeleniumLibrary","*<p>Opens a new browser instance to the optional <code>url\x3c/code>.\x3c/p>","*browser=chrome","*Opening browser 'chrome' to base url 'None'.","*Maximize Browser Window","*<p>Maximizes current browser window.\x3c/p>","*Abrir o site ParaBank para transferencia","*Go To","*<p>Navigates the current browser window to the provided <code>url\x3c/code>.\x3c/p>","*url=${URL}","*Opening url '<a href=\"https://parabank.parasoft.com\">https://parabank.parasoft.com\x3c/a>'","*inserir usuario","*Input Text","*<p>Types the given <code>text\x3c/code> into the text field identified by <code>locator\x3c/code>.\x3c/p>","*xpath=//input[@name='username']    ${username}","*Typing text 'Marcos' into text field 'xpath=//input[@name='username']'.","*inserir senha","*css=input[type=\"password\"]    ${PassWord}","*Typing text '1234@test' into text field 'css=input[type=\"password\"]'.","*clicar em login","*Click Element","*<p>Click the element identified by <code>locator\x3c/code>.\x3c/p>","*css=input[type=\"submit\"]","*Clicking element 'css=input[type=\"submit\"]'.","*Sleep","*BuiltIn","*<p>Pauses the test executed for the given time.\x3c/p>","*1s","*Slept 1 second.","*Clicar em Transfer Funds","*xpath=//a[normalize-space()='Transfer Funds']","*Clicking element 'xpath=//a[normalize-space()='Transfer Funds']'.","*css=input[id=\"amount\"]    5000","*Typing text '5000' into text field 'css=input[id=\"amount\"]'.","*From account","*Wait Until Element Is Visible","*<p>Waits until the element <code>locator\x3c/code> is visible.\x3c/p>","*css=select[id=\"fromAccountId\"]    10s","*Get Selected List Value","*<p>Returns the value of selected option from selection list <code>locator\x3c/code>.\x3c/p>","*css=select[id=\"fromAccountId\"]","*to account","*css=select[id=\"toAccountId\"]    10s","*css=select[id=\"toAccountId\"]","*Transferir","*css=input[value=\"Transfer\"]","*Clicking element 'css=input[value=\"Transfer\"]'.","*Fechar navegador","*Close Browser","*<p>Closes the current browser.\x3c/p>","*User Create Faker","*C:\\Parabank_web_teste\\parabank\\tests\\user_create_faker.robot","*../tests/user_create_faker.robot","*CT01 - Criar Usuário","*<p>Registrar usuario\x3c/p>","*registrar usuario","*Abrir o site ParaBank","*Validar titulo da pagina","*Title Should Be","*<p>Verifies that the current page title equals <code>title\x3c/code>.\x3c/p>","*ParaBank | Welcome | Online Banking","*Page title is 'ParaBank | Welcome | Online Banking'.","*Preencher formulário com dados válidos.","*User Name","*FakerLibrary","*${username}","*${username} = stuartflores","*css=a[href=\"register.htm\"]","*Clicking element 'css=a[href=\"register.htm\"]'.","*css=input[id=\"customer.firstName\"]    ${FirstName}","*Typing text 'Marcos' into text field 'css=input[id=\"customer.firstName\"]'.","*css=input[id=\"customer.lastName\"]    ${LastName}","*Typing text 'Antonio' into text field 'css=input[id=\"customer.lastName\"]'.","*css=input[id=\"customer.address.street\"]    ${Address}","*Typing text 'Castelão' into text field 'css=input[id=\"customer.address.street\"]'.","*css=input[id=\"customer.address.city\"]    ${City}","*Typing text 'Fortaleza' into text field 'css=input[id=\"customer.address.city\"]'.","*css=input[id=\"customer.address.state\"]    ${State}","*Typing text 'Ceará' into text field 'css=input[id=\"customer.address.state\"]'.","*css=input[id=\"customer.address.zipCode\"]    ${ZipCode}","*Typing text '60520560000' into text field 'css=input[id=\"customer.address.zipCode\"]'.","*css=input[id=\"customer.phoneNumber\"]    ${Phone}","*Typing text '85988997766' into text field 'css=input[id=\"customer.phoneNumber\"]'.","*css=input[id=\"customer.ssn\"]    ${SNN}","*Typing text '2342424242' into text field 'css=input[id=\"customer.ssn\"]'.","*css=input[id=\"customer.username\"]    ${username}","*Typing text 'stuartflores' into text field 'css=input[id=\"customer.username\"]'.","*css=input[id=\"customer.password\"]    ${PassWord}","*Typing text '1234@test' into text field 'css=input[id=\"customer.password\"]'.","*css=input[id=\"repeatedPassword\"]    ${Confirm}","*Typing text '1234@test' into text field 'css=input[id=\"repeatedPassword\"]'.","*Enviar formulário.","*css=input[value=\"Register\"]    10s","*css=input[value=\"Register\"]","*Clicking element 'css=input[value=\"Register\"]'.","*Page Should Contain","*<p>Verifies that current page contains <code>text\x3c/code>.\x3c/p>","*Welcome    Marcos","*Current page contains text 'Welcome'.","*Resultado Esperado: Usuário cadastrado com sucesso.","*Your account was created successfully. You are now logged in.","*Current page contains text 'Your account was created successfully. You are now logged in.'.","*User Login Valido","*C:\\Parabank_web_teste\\parabank\\tests\\user_login_valido.robot","*../tests/user_login_valido.robot","*CT02 - Cadastro existente nao pode ser criado","*<p>Realizar teste com usuario existente, o usuario nao pode ser criado.\x3c/p>","*Usuario existente","*Abrir o site ParaBank para cadastro existente","*Testa o cadastro de usuário existente","*css=input[id=\"customer.username\"]    ${UserName}","*Typing text 'Marcos' into text field 'css=input[id=\"customer.username\"]'.","*Clicar em 'Register'","*Cadastro existente","*This username already exists.    10s","*Current page contains text 'This username already exists.'."]);
 </script>
 <script type="text/javascript">
-window.output["stats"] = [[{"elapsed":"00:00:23","fail":0,"label":"All Tests","pass":3,"skip":0}],[{"elapsed":"00:00:08","fail":0,"label":"registrar usuario","pass":1,"skip":0},{"elapsed":"00:00:06","fail":0,"label":"Usuario existente","pass":1,"skip":0},{"elapsed":"00:00:10","fail":0,"label":"via banco","pass":1,"skip":0}],[{"elapsed":"00:00:24","fail":0,"id":"s1","label":"Tests","name":"Tests","pass":3,"skip":0},{"elapsed":"00:00:10","fail":0,"id":"s1-s1","label":"Tests.Transfer","name":"Transfer","pass":1,"skip":0},{"elapsed":"00:00:08","fail":0,"id":"s1-s2","label":"Tests.User Create Faker","name":"User Create Faker","pass":1,"skip":0},{"elapsed":"00:00:06","fail":0,"id":"s1-s3","label":"Tests.User Login Valido","name":"User Login Valido","pass":1,"skip":0}]];
+window.output["stats"] = [[{"elapsed":"00:00:48","fail":0,"label":"All Tests","pass":3,"skip":0}],[{"elapsed":"00:00:16","fail":0,"label":"registrar usuario","pass":1,"skip":0},{"elapsed":"00:00:15","fail":0,"label":"Usuario existente","pass":1,"skip":0},{"elapsed":"00:00:17","fail":0,"label":"via banco","pass":1,"skip":0}],[{"elapsed":"00:00:50","fail":0,"id":"s1","label":"Tests","name":"Tests","pass":3,"skip":0},{"elapsed":"00:00:19","fail":0,"id":"s1-s1","label":"Tests.Transfer","name":"Transfer","pass":1,"skip":0},{"elapsed":"00:00:16","fail":0,"id":"s1-s2","label":"Tests.User Create Faker","name":"User Create Faker","pass":1,"skip":0},{"elapsed":"00:00:15","fail":0,"id":"s1-s3","label":"Tests.User Login Valido","name":"User Login Valido","pass":1,"skip":0}]];
 </script>
 <script type="text/javascript">
 window.output["errors"] = [];
 </script>
 <script type="text/javascript">
-window.output["baseMillis"] = 1759963669068;
+window.output["baseMillis"] = 1760278551491;
 </script>
 <script type="text/javascript">
-window.output["generated"] = 23763;
+window.output["generated"] = 50347;
 </script>
 <script type="text/javascript">
 window.output["expand_keywords"] = null;
@@ -2214,7 +2207,7 @@ function addExecutionLog(main) {
 
 <script type="text/x-jquery-tmpl" id="tagStatisticsRowTemplate">
   <tr class="row-${$item.index}">
-    <td class="stats-col-name" title="{{html doc}}">
+    <td class="stats-col-name" title="${doc}">
       <div class="stat-name">
         <span>{{html label}}</span>
         {{if info}}(${info}){{/if}}
