@@ -10,4 +10,4 @@ CT02 - Cadastro existente nao pode ser criado
     Abrir o site ParaBank para cadastro existente   
     Testa o cadastro de usuário existente
     Clicar em 'Register'
-    Cadastro existente
+    

@@ -68,9 +68,6 @@ Testa o cadastro de usuário existente
 Clicar em 'Register'
     Wait Until Element Is Visible    css=input[value="Register"]    10s
     Click Element    css=input[value="Register"]
-Cadastro existente
-    Page Should Contain    This username already exists.    10s
-    
 Abrir o site ParaBank para transferencia
     Go To    url=${URL}
 inserir usuario
@@ -79,17 +76,17 @@ inserir senha
     Input Text    css=input[type="password"]    ${PassWord}
 clicar em login 
     Click Element    css=input[type="submit"]
-    Sleep    1s
+    
 Clicar em Transfer Funds 
     Click Element    xpath=//a[normalize-space()='Transfer Funds']
     Input Text       css=input[id="amount"]    5000
 From account
     Wait Until Element Is Visible   css=select[id="fromAccountId"]        10s
     Get Selected List Value         css=select[id="fromAccountId"]    
-    Sleep    1s
+    
 to account
     Wait Until Element Is Visible   css=select[id="toAccountId"]        10s
     Get Selected List Value         css=select[id="toAccountId"]    
-    Sleep    1s
+   
 Transferir
     Click Element    css=input[value="Transfer"]

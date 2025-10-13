@@ -5,7 +5,7 @@ Library    SeleniumLibrary
 Resource    ../resources/resources_parabank.robot
 
 *** Test Cases ***
-transferencia
+CT -03 transferencia
     [Documentation]     transferencia
     [Tags]    via banco
     Abrir o site ParaBank para transferencia
