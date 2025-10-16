@@ -1,8 +1,7 @@
 *** Settings ***
 Resource         ../resources/globals_resources_parabank.robot
-
 *** Keywords ***
-Acessar o site Parabank para cadastro.
+Acessar o site Parabank para cadastro existente.
     Go To    ${URL}
 Clicar no botao "Register".
     Click Element    css=a[href="register.htm"]
@@ -18,10 +17,9 @@ Preencher os campos de registro com informações válidas.
     Input Text    css=input[id="customer.username"]           ${UserName}
     Input Text    css=input[id="customer.password"]           ${PassWord}
     Input Text    css=input[id="repeatedPassword"]            ${Confirm}
-Clicar no botão "Register".
     Wait Until Element Is Visible    css=input[value="Register"]    10s
     Click Element    css=input[value="Register"]
-    Sleep    10s
-    Page Should Contain    Welcome    Marcos Antonio
-Resultado Esperado: Usuário cadastrado com sucesso.
-    Page Should Contain    Your account was created successfully. You are now logged in.
+    Sleep    1s
+Resultado Esperado: Usuário ja é cadastrado.
+    Page Should Contain    This username already exists.    
+    
