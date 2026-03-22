@@ -7,6 +7,8 @@ Acessar o site Parabank para cadastro.
 Clicar no botao "Register".
     Click Element    css=a[href="register.htm"]
 Preencher os campos de registro com informações válidas.
+    [Arguments]    ${FirstName}    ${LastName}    ${Address}    ${City}    ${State}    ${ZipCode}    ${Phone}    ${SSN}    ${UserName}    ${PassWord}    ${Confirm}
+    
     Input Text    css=input[id="customer.firstName"]          ${FirstName}  
     Input Text    css=input[id="customer.lastName"]           ${LastName}
     Input Text    css=input[id="customer.address.street"]     ${Address}

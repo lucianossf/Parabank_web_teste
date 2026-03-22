@@ -15,4 +15,5 @@ Verificar Conta Existente
     Acessar o site Parabank para cadastro existente.
     Clicar no botao "Register".
     Preencher os campos de registro com informações válidas.
+    ...    Marcos    Antonio    Rua Teste, 123    Cidade Teste    Estado Teste    12345-678    (11) 98765-4321    123-45-6789    marcos.antônio    senhaSegura123!    senhaSegura123!
     Resultado Esperado: Usuário ja é cadastrado.
