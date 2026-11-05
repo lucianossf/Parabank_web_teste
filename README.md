@@ -1,73 +1,49 @@
-# 🚀 Automação de Testes com Robot Framework - ParaBank
+# ParaBank — automação com Robot Framework
 
-Este repositório contém testes automatizados criados com **Robot Framework** e **SeleniumLibrary**, utilizando como base o site [ParaBank](https://parabank.parasoft.com).  
-Os casos de teste implementados até agora incluem:  
+Suíte de testes web para o ambiente de demonstração do [ParaBank](https://parabank.parasoft.com/). Os testes usam Robot Framework e SeleniumLibrary.
 
-- ✅ **Cadastro de novo usuário com sucesso**  
-- ✅ **Validação de cadastro já existente (não pode ser criado novamente)**  
+## Cobertura atual
 
-Foram utilizados **localizadores CSS, XPath e IDs** para interagir com os elementos da página.  
-O objetivo é evoluir e **criar mais testes automatizados ao longo do tempo**, cobrindo diferentes funcionalidades do sistema.  
+| Arquivo | Cenário |
+|---|---|
+| parabank/tests/0_acesso_navegacao.robot | Acesso ao site e validação do título da página |
+| parabank/tests/1_cadastro_autenticacao.robot | Cadastro de usuário |
+| parabank/tests/2_gerenciamento_contas.robot | Abertura de uma nova conta |
+| parabank/tests/3._transacoes_financeiras.robot | Transferência entre contas |
+| parabank/tests/4_visualizar_conta.robot | Consulta da conta e do saldo |
+| parabank/tests/5_verificar_conta_existente.robot | Validação de cadastro de usuário existente |
 
----
+## Ferramentas e versões
 
-## 📂 Estrutura do Projeto
+- Robot Framework, SeleniumLibrary e Selenium são as ferramentas usadas pelo projeto.
+- O repositório não fixa versões: não há requirements.txt, pyproject.toml ou arquivo de lock.
+- Python também não está configurado em manifesto. O README anterior citava Python 3.8+, sem validação no projeto.
+- Keywords compartilhadas do navegador ficam em parabank/resources/.
 
-PARABANK/
-│── logs/ # Relatórios de execução (gerados automaticamente)
-│── resources/ # Arquivos de recursos (keywords, variáveis etc.)
-│ └── resources_parabank.robot
-│── tests/ # Casos de teste
-│ ├── user_create.robot
-│ └── user_login_existente.robot
-└── README.md
+## Estrutura
 
+    parabank/
+    ├── resources/
+    └── tests/
+        ├── 0_acesso_navegacao.robot
+        ├── 1_cadastro_autenticacao.robot
+        ├── 2_gerenciamento_contas.robot
+        ├── 3._transacoes_financeiras.robot
+        ├── 4_visualizar_conta.robot
+        └── 5_verificar_conta_existente.robot
 
----
+## Instalação e execução
 
-## Executando os testes
+Na raiz do repositório:
 
-- Rodar todos os testes
-
+    cd parabank
+    python -m venv .venv
+    .venv/Scripts/Activate.ps1
+    python -m pip install robotframework robotframework-seleniumlibrary selenium
     robot -d logs tests/
 
-- Rodar um arquivo de teste específico
+Para executar um arquivo específico:
 
-    robot -d logs tests/user_create.robot
-    robot -d logs tests/user_login_existente.robot
+    robot -d logs tests/0_acesso_navegacao.robot
 
-- Rodar testes por tag (se definidas no arquivo .robot)
-
-    robot -d logs -i smoke tests/
-
-
-
-
-## 🛠️ Pré-requisitos
-- **Python 3.8+** instalado  
-- **Google Chrome** (ou Firefox) instalado  
-- Recomenda-se criar um ambiente virtual (`venv`)  
-
----
-
-## ⚙️ Instalação 
-
-### 1. Criar ambiente virtual
-Linux / macOS:
-```bash
-python3 -m venv venv
-source venv/bin/activate
-
-Windows (PowerShell):
-
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-Aqui estão os comandos para instalação das ferramentas:
-
-pip install robotframework
-pip install robotframework-seleniumlibrary
-pip install selenium
-
-
-
+O Robot Framework grava os relatórios em logs/. As versões das dependências não são reproduzíveis entre máquinas enquanto não forem fixadas em um arquivo de requisitos.
